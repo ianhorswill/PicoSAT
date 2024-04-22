@@ -18,6 +18,11 @@ namespace CatSAT.SAT
         /// 
         /// </summary>
         private Graph _graph;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private Subgraph _subgraph;
         
         /// <summary>
         /// 
@@ -37,6 +42,11 @@ namespace CatSAT.SAT
         /// <summary>
         /// 
         /// </summary>
+        private readonly bool _madeFromSubgraph;
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="graph"></param>
         public SpanningForest(Graph graph)
         {
@@ -44,6 +54,27 @@ namespace CatSAT.SAT
             ConnectedComponentCount = graph.NumVertices;
             _verticesCount = graph.NumVertices;
             _representativesAndRanks = new (int representative, int rank)[_verticesCount];
+            _edges = new HashSet<ushort>();
+            for (int i = 0; i < _verticesCount; i++)
+            {
+                _representativesAndRanks[i].representative = i;
+                _representativesAndRanks[i].rank = 0;
+            }
+
+            _madeFromSubgraph = false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="subgraph"></param>
+        public SpanningForest(Subgraph subgraph)
+        {
+            _subgraph = subgraph;
+            _graph = subgraph.OriginalGraph;
+            ConnectedComponentCount = subgraph.Vertices.Length;
+            _verticesCount = subgraph.Vertices.Length;
+            _representativesAndRanks = new (int representative, int rank)[subgraph.OriginalGraph.NumVertices];
             _edges = new HashSet<ushort>();
             for (int i = 0; i < _verticesCount; i++)
             {

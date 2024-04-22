@@ -110,6 +110,8 @@
     <Compile Include="NonBoolean\SMT\TheoryVariable.cs" />
     <Compile Include="SAT\CustomConstraint.cs" />
     <Compile Include="SAT\SpecialProposition.cs" />
+    <Compile Include="SAT\Subgraph.cs" />
+    <Compile Include="SAT\SubsetConnectedConstraint.cs" />
     <Compile Include="SAT\TimeoutException.cs" />
     <Compile Include="SAT\SATVariable.cs" />
     <Compile Include="SAT\Random.cs" />

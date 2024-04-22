@@ -41,12 +41,6 @@ namespace CatSAT.SAT
         /// The current union-find partition of the graph.
         /// </summary>
         public SpanningForest SpanningForest;
-        
-        // todo: remove
-        // /// <summary>
-        // /// The current spanning tree in the graph. Consists of the SAT variable numbers.
-        // /// </summary>
-        // public HashSet<ushort> SpanningTree = new HashSet<ushort>();
 
         /// <summary>
         /// The problem corresponding to this graph.
@@ -56,7 +50,7 @@ namespace CatSAT.SAT
         /// <summary>
         /// The BooleanSolver for the problem corresponding to this graph.
         /// </summary>
-        private BooleanSolver Solver => Problem.BooleanSolver;
+        public BooleanSolver Solver => Problem.BooleanSolver;
         
         /// <summary>
         /// True if the spanning tree has been built, false otherwise.
@@ -89,7 +83,7 @@ namespace CatSAT.SAT
                 }
             }
         }
-        
+
         /// <summary>
         /// The list of the shorts corresponding to the SAT variables of the edges in the graph.
         /// </summary>
@@ -165,7 +159,7 @@ namespace CatSAT.SAT
         public void ConnectInSpanningTree(int n, int m)
         {
             bool edgeAdded = SpanningForest.Union(n, m);
-            if (edgeAdded) Console.WriteLine($"Connected {n} and {m}");
+            if (edgeAdded) Console.WriteLine($"Connected {n} and {m} in Graph.");
         }
 
         /// <summary>
@@ -178,7 +172,7 @@ namespace CatSAT.SAT
             if (!SpanningForest.Contains(Edges(n, m).Index)) return;
             SpanningForest.Clear();
             _spanningTreeBuilt = false; // todo: remove this later for cleanup
-            Console.WriteLine($"Disconnected {n} and {m}");
+            Console.WriteLine($"Disconnected {n} and {m} in Graph.");
             RebuildSpanningTree();
         }
         
@@ -252,10 +246,13 @@ namespace CatSAT.SAT
         /// <summary>
         /// Adds a graph connected constraint to the problem.
         /// </summary>
-        public void Connected()
+        public void AssertConnected()
         {
             Problem.AddCustomConstraint(new GraphConnectedConstraint(this));
         }
+        
+        // todo: write method that takes two subgraphs and enumerates all edges between them
+        // todo: quantify(min, max, EdgesBetweenSubgraphs(subgraph1, subgraph2))
 
         /// <summary>
         /// Adds a constraint that the two specified nodes must be connected in the graph.

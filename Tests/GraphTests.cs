@@ -36,9 +36,9 @@ namespace Tests
         public void GraphConnectedTest()
         {
             var p = new Problem();
-            var graph = new Graph(p, 20);
+            var graph = new Graph(p, 100);
             // p.AddCustomConstraint(new GraphConnectedConstraint(graph));
-            graph.Connected();
+            graph.AssertConnected();
             graph.WriteDot(p.Solve(), "test.dot");
         }
 
@@ -131,6 +131,16 @@ namespace Tests
             var graph = new Graph(p, 5);
             p.AddCustomConstraint(new NConnectedComponentsConstraint(graph, 5));
             graph.WriteDot(p.Solve(), "test_five_connected_components.dot");
+        }
+
+        [TestMethod]
+        public void SubgraphConnectedTest()
+        {
+            var p = new Problem();
+            var graph = new Graph(p, 5, 0);
+            var subgraph = new Subgraph(graph, new[] { 0, 1 });
+            subgraph.AssertConnected();
+            graph.WriteDot(p.Solve(), "test_subgraph_connected.dot");
         }
         
         // todo: make an imaginarium-like test

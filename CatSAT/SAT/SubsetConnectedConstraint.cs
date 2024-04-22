@@ -4,21 +4,23 @@ using System.Text;
 
 namespace CatSAT.SAT
 {
-    // todo: look into making it so that edges not in spanning tree (red ones) wouldn't get considered by greedy flip
     /// <summary>
-    /// A class that represents a constraint on the graph. For now, the constraint is that the graph must be connected.
+    /// 
     /// </summary>
-    internal class GraphConnectedConstraint : CustomConstraint
+    internal class SubsetConnectedConstraint : CustomConstraint
     {
         /// <summary>
         /// The graph corresponding to this constraint.
         /// </summary>
-        public Graph Graph;
+        public Subgraph Subgraph;
 
         /// <summary>
-        /// The spanning forest of the graph.
+        /// 
         /// </summary>
-        private SpanningForest SpanningForest => Graph.SpanningForest;
+        private SpanningForest SubgraphSpanningForest => Subgraph.SpanningForest;
+        
+        // todo: will either need separate spanning forest just for the subset of the graph
+        // todo: or check that all of the vertices in the subset have the same representative, O(n)
         
         /// <summary>
         /// The risk associated with removing an edge which is in the spanning tree.
@@ -31,24 +33,24 @@ namespace CatSAT.SAT
         private const int EdgeAdditionRisk = -1;
 
         /// <summary>
-        /// The GraphConnectedConstraint constructor.
+        /// 
         /// </summary>
-        /// <param name="graph">The graph corresponding to this constraint.</param>
-        public GraphConnectedConstraint(Graph graph) : base(false, (ushort)short.MaxValue, graph.EdgeVariables, 1)
+        /// <param name="subgraph"></param>
+        public SubsetConnectedConstraint(Subgraph subgraph) : base(false, (ushort)short.MaxValue, subgraph.OriginalGraph.EdgeVariables, 1)
         {
-            Graph = graph;
-            foreach (var edge in graph.SATVariableToEdge.Values)
+            Subgraph = subgraph;
+            foreach (var edge in subgraph.SATVariableToEdge.Values)
             {
-                graph.Problem.SATVariables[edge.Index].CustomConstraints.Add(this);
+                subgraph.OriginalGraph.Problem.SATVariables[edge.Index].CustomConstraints.Add(this);
             }
         }
 
         /// <inheritdoc />
         public override int CustomFlipRisk(ushort index, bool adding)
         {
-            var componentCount = SpanningForest.ConnectedComponentCount;
+            var componentCount = SubgraphSpanningForest.ConnectedComponentCount;
             if (componentCount == 1 && adding) return 0;
-            var edge = Graph.SATVariableToEdge[index];
+            var edge = Subgraph.SATVariableToEdge[index];
             return adding ? AddingRisk(edge) : RemovingRisk(edge);
         }
 
@@ -58,14 +60,14 @@ namespace CatSAT.SAT
         /// <param name="edge">The edge proposition to be flipped to true.</param>
         /// <returns>The cost of adding this edge. Positive cost is unfavorable, negative cost is favorable.</returns>
         private int AddingRisk(EdgeProposition edge) =>
-            Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex) ? 0 : EdgeAdditionRisk;
+            Subgraph.AreConnected(edge.SourceVertex, edge.DestinationVertex) ? 0 : EdgeAdditionRisk;
 
         /// <summary>
         /// Returns the associated cost with removing this edge from the graph.
         /// </summary>
         /// <param name="edge">The edge proposition to be flipped to false.</param>
         /// <returns>The cost of removing this edge. Positive cost is unfavorable, negative cost is favorable.</returns>
-        private int RemovingRisk(EdgeProposition edge) => SpanningForest.Contains(edge.Index) ? EdgeRemovalRisk : 0;
+        private int RemovingRisk(EdgeProposition edge) => SubgraphSpanningForest.Contains(edge.Index) ? EdgeRemovalRisk : 0;
         
         /// <summary>
         /// Find the edge (proposition) to flip that will lead to the lowest cost.
@@ -90,8 +92,8 @@ namespace CatSAT.SAT
                 index = (index + prime) % dCount;
                 var selectedVar = (ushort)Math.Abs(literal);
                 if (selectedVar == lastFlipOfThisClause) continue;
-                EdgeProposition edge = Graph.SATVariableToEdge[selectedVar];
-                if (Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex)) continue;
+                if (!Subgraph.SATVariableToEdge.TryGetValue(selectedVar, out var edge)) continue;
+                if (Subgraph.AreConnected(edge.SourceVertex, edge.DestinationVertex)) continue;
                 var delta = b.UnsatisfiedClauseDelta(selectedVar);
                 if (delta <= 0)
                 {
@@ -111,18 +113,18 @@ namespace CatSAT.SAT
         /// <inheritdoc />
         public override void UpdateCustomConstraint(BooleanSolver b, ushort pIndex, bool adding)
         {
-            EdgeProposition edgeProp = Graph.SATVariableToEdge[pIndex];
+            EdgeProposition edgeProp = Subgraph.SATVariableToEdge[pIndex];
             if (adding)
             {
-                Graph.ConnectInSpanningTree(edgeProp.SourceVertex, edgeProp.DestinationVertex);
-                if (SpanningForest.ConnectedComponentCount == 1 && b.UnsatisfiedClauses.Contains(Index))
+                Subgraph.ConnectInSpanningTree(edgeProp.SourceVertex, edgeProp.DestinationVertex, true);
+                if (SubgraphSpanningForest.ConnectedComponentCount == 1 && b.UnsatisfiedClauses.Contains(Index))
                     b.UnsatisfiedClauses.Remove(Index);
             }
             else
             {
-                int previousComponentCount = SpanningForest.ConnectedComponentCount;
-                Graph.Disconnect(edgeProp.SourceVertex, edgeProp.DestinationVertex);
-                if (SpanningForest.ConnectedComponentCount > 1 && previousComponentCount == 1)
+                int previousComponentCount = SubgraphSpanningForest.ConnectedComponentCount;
+                Subgraph.Disconnect(edgeProp.SourceVertex, edgeProp.DestinationVertex);
+                if (SubgraphSpanningForest.ConnectedComponentCount > 1 && previousComponentCount == 1)
                     b.UnsatisfiedClauses.Add(Index);
             }
         }
@@ -133,21 +135,21 @@ namespace CatSAT.SAT
         /// <inheritdoc />
         internal override void Decompile(Problem p, StringBuilder b)
         {
-            b.Append("GraphConnectedConstraint");
+            b.Append("SubsetConnectedConstraint");
         }
 
         /// <inheritdoc />
         public override void Reset()
         {
-            Graph.Reset();
+            Subgraph.Reset();
         }
 
         #region Counting methods
         /// <inheritdoc />
         public override bool IsSatisfied(ushort satisfiedDisjuncts)
         {
-            Graph.EnsureSpanningTreeBuilt();
-            return SpanningForest.ConnectedComponentCount == 1;
+            Subgraph.EnsureSpanningTreeBuilt();
+            return SubgraphSpanningForest.ConnectedComponentCount == 1;
         }
 
         /// <inheritdoc />
