@@ -134,13 +134,33 @@ namespace Tests
         }
 
         [TestMethod]
-        public void SubgraphConnectedTest()
+        public void SubgraphConnectedTestOne()
         {
             var p = new Problem();
             var graph = new Graph(p, 5, 0);
             var subgraph = new Subgraph(graph, new[] { 0, 1 });
             subgraph.AssertConnected();
             graph.WriteDot(p.Solve(), "test_subgraph_connected.dot");
+        }
+
+        [TestMethod]
+        public void SubgraphConnectedTestTwo()
+        {
+            var p = new Problem();
+            var graph = new Graph(p, 5, 0);
+            var subgraph = new Subgraph(graph, new[] { 0, 1, 4 });
+            subgraph.AssertConnected();
+            graph.WriteDot(p.Solve(), "test_subgraph_connected_two.dot");
+        }
+
+        [TestMethod]
+        public void SubgraphConnectedTestThree()
+        {
+            var p = new Problem();
+            var graph = new Graph(p, 20, 0);
+            var subgraph = new Subgraph(graph, new[] { 1, 2, 3, 8, 9, 12, 13, 17 });
+            subgraph.AssertConnected();
+            graph.WriteDot(p.Solve(), "test_subgraph_connected_three.dot");
         }
         
         // todo: make an imaginarium-like test

@@ -22,7 +22,7 @@ namespace CatSAT.SAT
         /// <summary>
         /// 
         /// </summary>
-        public SpanningForest SpanningForest => new SpanningForest(this);
+        public SpanningForest SpanningForest;
 
         /// <summary>
         /// 
@@ -51,6 +51,8 @@ namespace CatSAT.SAT
             {
                 SATVariableToEdge[pair.Key] = pair.Value;
             }
+
+            SpanningForest = new SpanningForest(this);
         }
 
         /// <summary>

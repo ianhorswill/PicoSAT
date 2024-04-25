@@ -76,10 +76,10 @@ namespace CatSAT.SAT
             _verticesCount = subgraph.Vertices.Length;
             _representativesAndRanks = new (int representative, int rank)[subgraph.OriginalGraph.NumVertices];
             _edges = new HashSet<ushort>();
-            for (int i = 0; i < _verticesCount; i++)
+            for (int i = 0; i < subgraph.OriginalGraph.NumVertices; i++)
             {
-                _representativesAndRanks[i].representative = i;
-                _representativesAndRanks[i].rank = 0;
+                _representativesAndRanks[i].representative = _subgraph.Vertices.Contains(i) ? i : -1;
+                _representativesAndRanks[i].rank = _subgraph.Vertices.Contains(i) ? 0 : -1;
             }
         }
         
