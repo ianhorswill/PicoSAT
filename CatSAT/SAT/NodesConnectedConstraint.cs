@@ -62,7 +62,7 @@ namespace CatSAT.SAT
         /// <summary>
         /// The list of predecessors in the path from source node to vertex node, indexed by vertex number.
         /// </summary>
-        private int[] Predecessors;
+        private int[] _predecessors;
 
         /// <summary>
         /// The NodesConnectedConstraint constructor.
@@ -70,13 +70,13 @@ namespace CatSAT.SAT
         /// <param name="graph">The graph corresponding to this constraint.</param>
         /// <param name="sourceNode">The first node to be connected.</param>
         /// <param name="destinationNode">The second node to be connected.</param>
-        public NodesConnectedConstraint(Graph graph, int sourceNode, int destinationNode) : base(false, (ushort)short.MaxValue, graph.EdgeVariables, 1) // todo: figure this out later
+        public NodesConnectedConstraint(Graph graph, int sourceNode, int destinationNode) : base(false, (ushort)short.MaxValue, graph.EdgeVariables, 1)
         {
             Graph = graph;
             SourceNode = sourceNode;
             DestinationNode = destinationNode;
             _queue = new Queue<int>(NumVertices);
-            Predecessors = new int[NumVertices];
+            _predecessors = new int[NumVertices];
             _edgesInPath = new HashSet<ushort>(NumVertices - 1);
             foreach (var edge in graph.SATVariableToEdge.Values)
             {
@@ -90,11 +90,11 @@ namespace CatSAT.SAT
         private void ShortestPath()
         {
             for (int i = 0; i < NumVertices; i++)
-                Predecessors[i] = -1;
+                _predecessors[i] = -1;
             
             _edgesInPath.Clear();
             _queue.Clear();
-            Predecessors[SourceNode] = SourceNode;
+            _predecessors[SourceNode] = SourceNode;
             _queue.Enqueue(SourceNode);
 
             // todo: this is quadratic. change that?
@@ -106,19 +106,19 @@ namespace CatSAT.SAT
                 for (var vertex = 0; vertex < NumVertices; vertex++)
                 {
                     if (vertex == currentNode) continue; // no self edges
-                    if (Predecessors[vertex] != -1) continue; // already found predecessor
+                    if (_predecessors[vertex] != -1) continue; // already found predecessor
                     if (!Graph.AdjacentVertices(vertex, currentNode)) continue; // no edge between vertex and currentNode
-                    Predecessors[vertex] = currentNode;
+                    _predecessors[vertex] = currentNode;
                     if (vertex == DestinationNode) goto foundIt;
                     _queue.Enqueue(vertex);
                 }
             }
 
-            throw new Exception("No path found between source and destination nodes???");
+            throw new Exception("No path found between source and destination nodes.");
             foundIt:
-            for (var node = DestinationNode; node != SourceNode; node = Predecessors[node])
+            for (var node = DestinationNode; node != SourceNode; node = _predecessors[node])
             {
-                var edge = Graph.Edges(Predecessors[node], node);
+                var edge = Graph.Edges(_predecessors[node], node);
                 _edgesInPath.Add(edge.Index);
             }
         }
@@ -127,7 +127,7 @@ namespace CatSAT.SAT
         public override int CustomFlipRisk(ushort index, bool adding)
         {
             var edge = Graph.SATVariableToEdge[index];
-            bool previouslyConnected = Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex);
+            var previouslyConnected = Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex);
             if (previouslyConnected && adding) return 0;
             return adding ? AddingRisk(edge) : RemovingRisk(edge);
         }
@@ -158,8 +158,8 @@ namespace CatSAT.SAT
         /// <returns>The index of the edge (proposition) to flip.</returns>
         public override ushort GreedyFlip(BooleanSolver b)
         {
-            List<short> disjuncts = UnPredeterminedDisjuncts;
-            ushort lastFlipOfThisClause = b.LastFlip[Index];
+            var disjuncts = UnPredeterminedDisjuncts;
+            var lastFlipOfThisClause = b.LastFlip[Index];
 
             var best = 0;
             var bestDelta = int.MaxValue;
@@ -174,7 +174,7 @@ namespace CatSAT.SAT
                 index = (index + prime) % dCount;
                 var selectedVar = (ushort)Math.Abs(literal);
                 if (selectedVar == lastFlipOfThisClause) continue;
-                EdgeProposition edge = Graph.SATVariableToEdge[selectedVar];
+                var edge = Graph.SATVariableToEdge[selectedVar];
                 if (Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex)) continue;
                 var delta = b.UnsatisfiedClauseDelta(selectedVar);
                 if (delta <= 0)
@@ -195,8 +195,8 @@ namespace CatSAT.SAT
         /// <inheritdoc />
         public override void UpdateCustomConstraint(BooleanSolver b, ushort pIndex, bool adding)
         {
-            EdgeProposition edgeProp = Graph.SATVariableToEdge[pIndex];
-            bool previouslyConnected = Graph.AreConnected(SourceNode, DestinationNode);
+            var edgeProp = Graph.SATVariableToEdge[pIndex];
+            var previouslyConnected = Graph.AreConnected(SourceNode, DestinationNode);
             if (adding)
             {
                 Graph.ConnectInSpanningTree(edgeProp.SourceVertex, edgeProp.DestinationVertex);

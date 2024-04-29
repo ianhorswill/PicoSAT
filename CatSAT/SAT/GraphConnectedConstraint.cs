@@ -74,8 +74,8 @@ namespace CatSAT.SAT
         /// <returns>The index of the edge (proposition) to flip.</returns>
         public override ushort GreedyFlip(BooleanSolver b)
         {
-            List<short> disjuncts = UnPredeterminedDisjuncts;
-            ushort lastFlipOfThisClause = b.LastFlip[Index];
+            var disjuncts = UnPredeterminedDisjuncts;
+            var lastFlipOfThisClause = b.LastFlip[Index];
 
             var best = 0;
             var bestDelta = int.MaxValue;
@@ -90,7 +90,7 @@ namespace CatSAT.SAT
                 index = (index + prime) % dCount;
                 var selectedVar = (ushort)Math.Abs(literal);
                 if (selectedVar == lastFlipOfThisClause) continue;
-                EdgeProposition edge = Graph.SATVariableToEdge[selectedVar];
+                var edge = Graph.SATVariableToEdge[selectedVar];
                 if (Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex)) continue;
                 var delta = b.UnsatisfiedClauseDelta(selectedVar);
                 if (delta <= 0)
@@ -111,7 +111,7 @@ namespace CatSAT.SAT
         /// <inheritdoc />
         public override void UpdateCustomConstraint(BooleanSolver b, ushort pIndex, bool adding)
         {
-            EdgeProposition edgeProp = Graph.SATVariableToEdge[pIndex];
+            var edgeProp = Graph.SATVariableToEdge[pIndex];
             if (adding)
             {
                 Graph.ConnectInSpanningTree(edgeProp.SourceVertex, edgeProp.DestinationVertex);
@@ -120,7 +120,7 @@ namespace CatSAT.SAT
             }
             else
             {
-                int previousComponentCount = SpanningForest.ConnectedComponentCount;
+                var previousComponentCount = SpanningForest.ConnectedComponentCount;
                 Graph.Disconnect(edgeProp.SourceVertex, edgeProp.DestinationVertex);
                 if (SpanningForest.ConnectedComponentCount > 1 && previousComponentCount == 1)
                     b.UnsatisfiedClauses.Add(Index);

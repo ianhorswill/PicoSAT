@@ -25,8 +25,7 @@ namespace CatSAT.SAT
         /// </exception>
         public override void Initialize(Problem p)
         {
-            var n = Name as Call;
-            if (n == null)
+            if (!(Name is Call n))
                 throw new Exception(
                     "EdgeProposition name must be an object array containing the source and destination vertices.");
             SourceVertex = (int)n.Args[0];

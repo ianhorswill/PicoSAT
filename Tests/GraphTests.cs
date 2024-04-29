@@ -37,7 +37,6 @@ namespace Tests
         {
             var p = new Problem();
             var graph = new Graph(p, 100);
-            // p.AddCustomConstraint(new GraphConnectedConstraint(graph));
             graph.AssertConnected();
             graph.WriteDot(p.Solve(), "test.dot");
         }
@@ -80,7 +79,7 @@ namespace Tests
         {
             var p = new Problem();
             var graph = new Graph(p, 40, 0);
-            p.AddCustomConstraint(new NodesConnectedConstraint(graph, 0, 1));
+            graph.AssertNodesConnected(0, 1);
             graph.WriteDot(p.Solve(), "test_nodes_connected.dot");
         }
 
@@ -162,12 +161,34 @@ namespace Tests
             subgraph.AssertConnected();
             graph.WriteDot(p.Solve(), "test_subgraph_connected_three.dot");
         }
-        
-        // todo: make an imaginarium-like test
+
         [TestMethod]
-        public void ImaginariumTest()
+        public void NBridgesTest()
         {
-            
+            var p = new Problem();
+            var graph = new Graph(p, 6, 0);
+            var subgraphOne = new Subgraph(graph, new[] { 0, 1, 2 });
+            var subgraphTwo = new Subgraph(graph, new[] { 3, 4, 5 });
+            subgraphOne.AssertConnected();
+            subgraphTwo.AssertConnected();
+            graph.AssertNBridges(1, 1, subgraphOne, subgraphTwo);
+            graph.WriteDot(p.Solve(), "test_n_bridges.dot");
+        }
+
+        [TestMethod]
+        public void GameTest()
+        {
+            var p = new Problem();
+            var graph = new Graph(p, 16, 0);
+            var subgraphOne = new Subgraph(graph, new[] { 0, 1, 2, 3, 4, 5, 6, 7 });
+            var subgraphTwo = new Subgraph(graph, new[] { 8, 9, 10, 11, 12, 13, 14, 15 });
+            subgraphOne.AssertConnected();
+            subgraphTwo.AssertConnected();
+            subgraphOne.Density(0.3f, 0.7f);
+            subgraphTwo.Density(0.3f, 0.7f);
+            graph.AssertNBridges(1, 3, subgraphOne, subgraphTwo);
+            graph.AssertConnected();
+            graph.WriteDot(p.Solve(), "test_game.dot");
         }
     }
 }
