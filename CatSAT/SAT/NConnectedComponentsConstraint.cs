@@ -103,7 +103,7 @@ namespace CatSAT.SAT
             Console.WriteLine($"{(adding ? "adding" : "removing")} {edgeProp}");
             if (adding)
             {
-                Graph.ConnectInSpanningTree(edgeProp.SourceVertex, edgeProp.DestinationVertex);
+                Graph.ConnectInSpanningForest(edgeProp.SourceVertex, edgeProp.DestinationVertex);
                 if (SpanningForest.ConnectedComponentCount == TargetNumComponents && b.UnsatisfiedClauses.Contains(Index))
                 {
                     b.UnsatisfiedClauses.Remove(Index);
@@ -140,7 +140,7 @@ namespace CatSAT.SAT
         /// <inheritdoc />
         public override bool IsSatisfied(ushort satisfiedDisjuncts)
         {
-            Graph.EnsureSpanningTreeBuilt();
+            Graph.EnsureSpanningForestBuilt();
             return SpanningForest.ConnectedComponentCount == TargetNumComponents;
         }
 

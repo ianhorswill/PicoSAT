@@ -203,7 +203,7 @@ namespace CatSAT.SAT
             var previouslyConnected = Graph.AreConnected(SourceNode, DestinationNode);
             if (adding)
             {
-                Graph.ConnectInSpanningTree(edgeProp.SourceVertex, edgeProp.DestinationVertex);
+                Graph.ConnectInSpanningForest(edgeProp.SourceVertex, edgeProp.DestinationVertex);
                 if (previouslyConnected || !Graph.AreConnected(SourceNode, DestinationNode) ||
                     !b.UnsatisfiedClauses.Contains(Index)) return;
 
@@ -243,7 +243,7 @@ namespace CatSAT.SAT
         /// <inheritdoc />
         public override bool IsSatisfied(ushort satisfiedDisjuncts)
         {
-            Graph.EnsureSpanningTreeBuilt();
+            Graph.EnsureSpanningForestBuilt();
             return Graph.AreConnected(SourceNode, DestinationNode);
         }
 

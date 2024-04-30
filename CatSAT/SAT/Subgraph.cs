@@ -30,9 +30,9 @@ namespace CatSAT.SAT
         public Dictionary<ushort, EdgeProposition> SATVariableToEdge = new Dictionary<ushort, EdgeProposition>();
 
         /// <summary>
-        /// True if the spanning tree has been built, false otherwise.
+        /// True if the spanning forest has been built, false otherwise.
         /// </summary>
-        private bool _spanningTreeBuilt = false;
+        private bool _spanningForestBuilt = false;
 
         /// <summary>
         /// The subgraph constructor. Creates the SAT variables for the edges and maps them to edge propositions from
@@ -66,22 +66,22 @@ namespace CatSAT.SAT
         public bool AreConnected(int n, int m) => SpanningForest.SameClass(n, m);
 
         /// <summary>
-        /// Adds the edge (n, m) to the spanning tree for the subgraph, and optionally to the original graph if it is
+        /// Adds the edge (n, m) to the spanning forest for the subgraph, and optionally to the original graph if it is
         /// not already there.
         /// </summary>
         /// <param name="n">The first vertex in the edge.</param>
         /// <param name="m">The second vertex in the edge.</param>
         /// <param name="connectInOriginalGraph">If true, will also connect the edge in the original graph. If false,
         /// will not.</param>
-        public void ConnectInSpanningTree(int n, int m, bool connectInOriginalGraph = false)
+        public void ConnectInSpanningForest(int n, int m, bool connectInOriginalGraph = false)
         {
             var edgeAdded = SpanningForest.Union(n, m);
-            if (connectInOriginalGraph) OriginalGraph.ConnectInSpanningTree(n, m);
+            if (connectInOriginalGraph) OriginalGraph.ConnectInSpanningForest(n, m);
             if (edgeAdded) Console.WriteLine($"Connected {n} and {m} in Subgraph.");
         }
 
         /// <summary>
-        /// Removes the edge (n, m) from the spanning tree, if it is present there. Also removes it from the original
+        /// Removes the edge (n, m) from the spanning forest, if it is present there. Also removes it from the original
         /// graph.
         /// </summary>
         /// <param name="n">The first vertex.</param>
@@ -90,42 +90,42 @@ namespace CatSAT.SAT
         {
             if (!SpanningForest.Contains(OriginalGraph.Edges(n, m).Index)) return;
             SpanningForest.Clear();
-            _spanningTreeBuilt = false;
+            _spanningForestBuilt = false;
             OriginalGraph.Disconnect(n, m);
             Console.WriteLine($"Disconnected {n} and {m} in Subgraph.");
         }
 
         /// <summary>
-        /// Rebuilds the spanning tree with the current edge propositions which are true. Called after removing an edge.
+        /// Rebuilds the spanning forest with the current edge propositions which are true. Called after removing an edge.
         /// </summary>
-        private void RebuildSpanningTree()
+        private void RebuildSpanningForest()
         {
             SpanningForest.Clear();
             // todo: down the road, keep a list/hashset of all the edges that are true, and only iterate over those
             foreach (var edgeProposition in SATVariableToEdge.Values.Where(edgeProposition =>
                          OriginalGraph.Solver.Propositions[edgeProposition.Index]))
             {
-                ConnectInSpanningTree(edgeProposition.SourceVertex, edgeProposition.DestinationVertex);
+                ConnectInSpanningForest(edgeProposition.SourceVertex, edgeProposition.DestinationVertex);
             }
 
-            _spanningTreeBuilt = true;
+            _spanningForestBuilt = true;
         }
 
         /// <summary>
-        /// Sets the spanning tree built flag to false.
+        /// Sets the spanning forest built flag to false.
         /// </summary>
         public void Reset()
         {
-            _spanningTreeBuilt = false;
+            _spanningForestBuilt = false;
         }
 
         /// <summary>
-        /// Checks whether the spanning tree for the subgraph has been built. If not, rebuilds it.
+        /// Checks whether the spanning forest for the subgraph has been built. If not, rebuilds it.
         /// </summary>
-        public void EnsureSpanningTreeBuilt()
+        public void EnsureSpanningForestBuilt()
         {
-            if (_spanningTreeBuilt) return;
-            RebuildSpanningTree();
+            if (_spanningForestBuilt) return;
+            RebuildSpanningForest();
         }
 
         /// <summary>

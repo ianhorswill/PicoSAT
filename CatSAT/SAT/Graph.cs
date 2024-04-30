@@ -58,9 +58,9 @@ namespace CatSAT.SAT
         public List<Subgraph> Subgraphs;
 
         /// <summary>
-        /// True if the spanning tree has been built, false otherwise.
+        /// True if the spanning forest has been built, false otherwise.
         /// </summary>
-        private bool _spanningTreeBuilt = false;
+        private bool _spanningForestBuilt = false;
 
         /// <summary>
         /// The graph constructor. Initializes the vertices and spanning forest, and creates all possible edges. Creates
@@ -159,18 +159,18 @@ namespace CatSAT.SAT
         public bool AreConnected(int n, int m) => SpanningForest.SameClass(n, m);
 
         /// <summary>
-        /// Adds the edge (n, m) to the spanning tree. 
+        /// Adds the edge (n, m) to the spanning forest. 
         /// </summary>
         /// <param name="n">The first vertex in the edge.</param>
         /// <param name="m">The second vertex in the edge.</param>
-        public void ConnectInSpanningTree(int n, int m)
+        public void ConnectInSpanningForest(int n, int m)
         {
             var edgeAdded = SpanningForest.Union(n, m);
             if (edgeAdded) Console.WriteLine($"Connected {n} and {m} in Graph.");
         }
 
         /// <summary>
-        /// Removes the edge (n, m) from the spanning tree, if it is present there.
+        /// Removes the edge (n, m) from the spanning forest, if it is present there.
         /// </summary>
         /// <param name="n">The first vertex.</param>
         /// <param name="m">The second vertex.</param>
@@ -178,9 +178,9 @@ namespace CatSAT.SAT
         {
             if (!SpanningForest.Contains(Edges(n, m).Index)) return;
             SpanningForest.Clear();
-            _spanningTreeBuilt = false;
+            _spanningForestBuilt = false;
             Console.WriteLine($"Disconnected {n} and {m} in Graph.");
-            RebuildSpanningTree();
+            RebuildSpanningForest();
         }
 
         /// <summary>
@@ -192,19 +192,19 @@ namespace CatSAT.SAT
         public bool AdjacentVertices(int n, int m) => Solver.Propositions[EdgeToSATVariable[Edges(n, m)]];
 
         /// <summary>
-        /// Rebuilds the spanning tree with the current edge propositions which are true. Called after removing an edge.
+        /// Rebuilds the spanning forest with the current edge propositions which are true. Called after removing an edge.
         /// </summary>
-        private void RebuildSpanningTree()
+        private void RebuildSpanningForest()
         {
             SpanningForest.Clear();
             // todo: down the road, keep a list/hashset of all the edges that are true, and only iterate over those
             foreach (var edgeProposition in SATVariableToEdge.Values.Where(edgeProposition =>
                          Solver.Propositions[edgeProposition.Index]))
             {
-                ConnectInSpanningTree(edgeProposition.SourceVertex, edgeProposition.DestinationVertex);
+                ConnectInSpanningForest(edgeProposition.SourceVertex, edgeProposition.DestinationVertex);
             }
 
-            _spanningTreeBuilt = true;
+            _spanningForestBuilt = true;
         }
 
         /// <summary>
@@ -247,27 +247,27 @@ namespace CatSAT.SAT
         }
 
         /// <summary>
-        /// Sets the color of the edge ot be green if it is in the spanning tree, red otherwise.
+        /// Sets the color of the edge ot be green if it is in the spanning forest, red otherwise.
         /// </summary>
         /// <param name="index">The index corresponding to the edge.</param>
         /// <returns>The color of the edge as a string.</returns>
         private string EdgeColor(ushort index) => SpanningForest.Contains(index) ? "green" : "red";
 
         /// <summary>
-        /// Checks whether the spanning tree for the graph has been built. If not, rebuilds it.
+        /// Checks whether the spanning forest for the graph has been built. If not, rebuilds it.
         /// </summary>
-        public void EnsureSpanningTreeBuilt()
+        public void EnsureSpanningForestBuilt()
         {
-            if (_spanningTreeBuilt) return;
-            RebuildSpanningTree();
+            if (_spanningForestBuilt) return;
+            RebuildSpanningForest();
         }
 
         /// <summary>
-        /// Sets the spanning tree built flag to false.
+        /// Sets the spanning forest built flag to false.
         /// </summary>
         public void Reset()
         {
-            _spanningTreeBuilt = false;
+            _spanningForestBuilt = false;
         }
 
         /// <summary>

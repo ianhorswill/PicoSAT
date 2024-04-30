@@ -186,10 +186,10 @@ namespace CatSAT.SAT
         }
         
         /// <summary>
-        /// Determines whether the spanning tree has been correctly constructed.
+        /// Determines whether the spanning forest has been correctly constructed.
         /// </summary>
-        /// <returns>True if the spanning tree contains all the vertices in the graph, false otherwise.</returns>
-        public bool IsSpanningTree()
+        /// <returns>True if the spanning forest contains all the vertices in the graph, false otherwise.</returns>
+        public bool IsSpanningForest()
         {
             var visited = new HashSet<int>();
             foreach (var index in _edges)

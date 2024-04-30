@@ -42,13 +42,13 @@ namespace Tests
         }
 
         [TestMethod]
-        public void SpanningTreeTest()
+        public void SpanningForestTest()
         {
             var p = new Problem();
             var graph = new Graph(p, 20);
             p.AddCustomConstraint(new GraphConnectedConstraint(graph));
             p.Solve();
-            Assert.IsTrue(graph.SpanningForest.IsSpanningTree());
+            Assert.IsTrue(graph.SpanningForest.IsSpanningForest());
         }
         
         [TestMethod]

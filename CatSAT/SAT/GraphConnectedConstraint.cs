@@ -6,7 +6,7 @@ namespace CatSAT.SAT
 {
     // todo: look into making it so that edges not in spanning tree (red ones) wouldn't get considered by greedy flip
     /// <summary>
-    /// A class that represents a constraint on the graph. For now, the constraint is that the graph must be connected.
+    /// A class that represents a constraint on the graph that the graph must be connected.
     /// </summary>
     internal class GraphConnectedConstraint : CustomConstraint
     {
@@ -114,7 +114,7 @@ namespace CatSAT.SAT
             var edgeProp = Graph.SATVariableToEdge[pIndex];
             if (adding)
             {
-                Graph.ConnectInSpanningTree(edgeProp.SourceVertex, edgeProp.DestinationVertex);
+                Graph.ConnectInSpanningForest(edgeProp.SourceVertex, edgeProp.DestinationVertex);
                 if (SpanningForest.ConnectedComponentCount == 1 && b.UnsatisfiedClauses.Contains(Index))
                     b.UnsatisfiedClauses.Remove(Index);
             }
@@ -146,7 +146,7 @@ namespace CatSAT.SAT
         /// <inheritdoc />
         public override bool IsSatisfied(ushort satisfiedDisjuncts)
         {
-            Graph.EnsureSpanningTreeBuilt();
+            Graph.EnsureSpanningForestBuilt();
             return SpanningForest.ConnectedComponentCount == 1;
         }
 

@@ -5,7 +5,7 @@ using System.Text;
 namespace CatSAT.SAT
 {
     /// <summary>
-    /// 
+    /// A class that represents a constraint on the graph that the subgraph must be connected.
     /// </summary>
     internal class SubsetConnectedConstraint : CustomConstraint
     {
@@ -18,9 +18,6 @@ namespace CatSAT.SAT
         /// 
         /// </summary>
         private SpanningForest SubgraphSpanningForest => Subgraph.SpanningForest;
-        
-        // todo: will either need separate spanning forest just for the subset of the graph
-        // todo: or check that all of the vertices in the subset have the same representative, O(n)
         
         /// <summary>
         /// The risk associated with removing an edge which is in the spanning tree.
@@ -76,8 +73,8 @@ namespace CatSAT.SAT
         /// <returns>The index of the edge (proposition) to flip.</returns>
         public override ushort GreedyFlip(BooleanSolver b)
         {
-            List<short> disjuncts = UnPredeterminedDisjuncts;
-            ushort lastFlipOfThisClause = b.LastFlip[Index];
+            var disjuncts = UnPredeterminedDisjuncts;
+            var lastFlipOfThisClause = b.LastFlip[Index];
 
             var best = 0;
             var bestDelta = int.MaxValue;
@@ -113,16 +110,16 @@ namespace CatSAT.SAT
         /// <inheritdoc />
         public override void UpdateCustomConstraint(BooleanSolver b, ushort pIndex, bool adding)
         {
-            EdgeProposition edgeProp = Subgraph.SATVariableToEdge[pIndex];
+            var edgeProp = Subgraph.SATVariableToEdge[pIndex];
             if (adding)
             {
-                Subgraph.ConnectInSpanningTree(edgeProp.SourceVertex, edgeProp.DestinationVertex, true);
+                Subgraph.ConnectInSpanningForest(edgeProp.SourceVertex, edgeProp.DestinationVertex, true);
                 if (SubgraphSpanningForest.ConnectedComponentCount == 1 && b.UnsatisfiedClauses.Contains(Index))
                     b.UnsatisfiedClauses.Remove(Index);
             }
             else
             {
-                int previousComponentCount = SubgraphSpanningForest.ConnectedComponentCount;
+                var previousComponentCount = SubgraphSpanningForest.ConnectedComponentCount;
                 Subgraph.Disconnect(edgeProp.SourceVertex, edgeProp.DestinationVertex);
                 if (SubgraphSpanningForest.ConnectedComponentCount > 1 && previousComponentCount == 1)
                     b.UnsatisfiedClauses.Add(Index);
@@ -148,7 +145,7 @@ namespace CatSAT.SAT
         /// <inheritdoc />
         public override bool IsSatisfied(ushort satisfiedDisjuncts)
         {
-            Subgraph.EnsureSpanningTreeBuilt();
+            Subgraph.EnsureSpanningForestBuilt();
             return SubgraphSpanningForest.ConnectedComponentCount == 1;
         }
 
