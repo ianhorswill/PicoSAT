@@ -23,7 +23,7 @@ namespace CatSAT.SAT
         /// The second node to be connected.
         /// </summary>
         public int DestinationNode;
-        
+
         /// <summary>
         /// The queue used for BFS.
         /// </summary>
@@ -43,12 +43,12 @@ namespace CatSAT.SAT
         /// The edges in the path between the source node and the destination node.
         /// </summary>
         private HashSet<ushort> _edgesInPath;
-        
+
         /// <summary>
         /// The default risk associated with removing an edge.
         /// </summary>
         private const int EdgeRemovalRisk = 1;
-        
+
         /// <summary>
         /// The default risk associated with adding an edge.
         /// </summary>
@@ -70,7 +70,8 @@ namespace CatSAT.SAT
         /// <param name="graph">The graph corresponding to this constraint.</param>
         /// <param name="sourceNode">The first node to be connected.</param>
         /// <param name="destinationNode">The second node to be connected.</param>
-        public NodesConnectedConstraint(Graph graph, int sourceNode, int destinationNode) : base(false, (ushort)short.MaxValue, graph.EdgeVariables, 1)
+        public NodesConnectedConstraint(Graph graph, int sourceNode, int destinationNode) : base(false,
+            (ushort)short.MaxValue, graph.EdgeVariables, 1)
         {
             Graph = graph;
             SourceNode = sourceNode;
@@ -83,31 +84,30 @@ namespace CatSAT.SAT
                 graph.Problem.SATVariables[edge.Index].CustomConstraints.Add(this);
             }
         }
-        
+
         /// <summary>
         /// Does a breadth-first search to find the minimum path between the source node and the destination node.
         /// </summary>
         private void ShortestPath()
         {
-            for (int i = 0; i < NumVertices; i++)
+            for (var i = 0; i < NumVertices; i++)
                 _predecessors[i] = -1;
-            
+
             _edgesInPath.Clear();
             _queue.Clear();
             _predecessors[SourceNode] = SourceNode;
             _queue.Enqueue(SourceNode);
-
-            // todo: this is quadratic. change that?
-            // cache info?
+            
             while (_queue.Count > 0)
             {
                 var currentNode = _queue.Dequeue();
-                
+
                 for (var vertex = 0; vertex < NumVertices; vertex++)
                 {
                     if (vertex == currentNode) continue; // no self edges
                     if (_predecessors[vertex] != -1) continue; // already found predecessor
-                    if (!Graph.AdjacentVertices(vertex, currentNode)) continue; // no edge between vertex and currentNode
+                    if (!Graph.AdjacentVertices(vertex, currentNode))
+                        continue; // no edge between vertex and currentNode
                     _predecessors[vertex] = currentNode;
                     if (vertex == DestinationNode) goto foundIt;
                     _queue.Enqueue(vertex);
@@ -122,7 +122,7 @@ namespace CatSAT.SAT
                 _edgesInPath.Add(edge.Index);
             }
         }
-        
+
         /// <inheritdoc />
         public override int CustomFlipRisk(ushort index, bool adding)
         {
@@ -131,7 +131,7 @@ namespace CatSAT.SAT
             if (previouslyConnected && adding) return 0;
             return adding ? AddingRisk(edge) : RemovingRisk(edge);
         }
-        
+
         /// <summary>
         /// Returns the associated cost with adding this edge to the graph.
         /// </summary>
@@ -142,15 +142,18 @@ namespace CatSAT.SAT
             if (SpanningForest.WouldConnect(SourceNode, DestinationNode, edge)) return EdgeAdditionRisk * 2;
             return Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex) ? 0 : EdgeAdditionRisk;
         }
-        
-        // todo: this is version 0. make it better later
+
         /// <summary>
         /// Returns the associated cost with removing this edge from the graph.
         /// </summary>
         /// <param name="edge">The edge proposition to be flipped to false.</param>
         /// <returns>The cost of removing this edge. Positive cost is unfavorable, negative cost is favorable.</returns>
-        private int RemovingRisk(EdgeProposition edge) => SpanningForest.Contains(edge.Index) ? EdgeRemovalRisk : 0;
-        
+        private int RemovingRisk(EdgeProposition edge)
+        {
+            return _connected ? _edgesInPath.Contains(edge.Index) ? EdgeRemovalRisk * 2 : 0
+                : SpanningForest.Contains(edge.Index) ? EdgeRemovalRisk : 0;
+        }
+
         /// <summary>
         /// Find the edge (proposition) to flip that will lead to the lowest cost.
         /// </summary>
@@ -167,7 +170,8 @@ namespace CatSAT.SAT
             var dCount = (uint)disjuncts.Count;
             var index = Random.InRange(dCount);
             uint prime;
-            do prime = Random.Prime(); while (prime <= dCount);
+            do prime = Random.Prime();
+            while (prime <= dCount);
             for (var i = 0; i < dCount; i++)
             {
                 var literal = disjuncts[(int)index];
@@ -200,23 +204,24 @@ namespace CatSAT.SAT
             if (adding)
             {
                 Graph.ConnectInSpanningTree(edgeProp.SourceVertex, edgeProp.DestinationVertex);
-                if (!previouslyConnected && Graph.AreConnected(SourceNode, DestinationNode) &&
-                    b.UnsatisfiedClauses.Contains(Index))
-                {
-                    // we have connected the two nodes via some path
-                    b.UnsatisfiedClauses.Remove(Index);
-                }
+                if (previouslyConnected || !Graph.AreConnected(SourceNode, DestinationNode) ||
+                    !b.UnsatisfiedClauses.Contains(Index)) return;
+
+                // we have connected the two nodes via some path. find this path
+                b.UnsatisfiedClauses.Remove(Index);
+                _connected = true;
+                ShortestPath();
             }
             else
             {
                 Graph.Disconnect(edgeProp.SourceVertex, edgeProp.DestinationVertex);
-                if (previouslyConnected && !Graph.AreConnected(SourceNode, DestinationNode))
-                {
-                    b.UnsatisfiedClauses.Add(Index);
-                }
+                if (!previouslyConnected || Graph.AreConnected(SourceNode, DestinationNode)) return;
+
+                b.UnsatisfiedClauses.Add(Index);
+                _connected = false;
             }
         }
-        
+
         /// <inheritdoc />
         internal override bool EquivalentTo(Constraint c) => false;
 
@@ -225,7 +230,7 @@ namespace CatSAT.SAT
         {
             b.Append("NodesConnectedConstraint");
         }
-        
+
         /// <inheritdoc />
         public override void Reset()
         {
@@ -234,6 +239,7 @@ namespace CatSAT.SAT
         }
 
         #region Counting methods
+
         /// <inheritdoc />
         public override bool IsSatisfied(ushort satisfiedDisjuncts)
         {
@@ -276,14 +282,7 @@ namespace CatSAT.SAT
         {
             throw new System.NotImplementedException();
         }
+
         #endregion
     }
-    
-    // while not connected
-        // i like connecting two previously unconnected components
-        // i don't like removing edges
-    // while connected
-        // keep the shortest path
-        // don't care about any edges not on the path
-        // if remove edge on path, rebuild spanning tree. yikes.
 }

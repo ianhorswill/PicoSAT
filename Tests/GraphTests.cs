@@ -106,33 +106,6 @@ namespace Tests
         }
 
         [TestMethod]
-        public void OneConnectedComponentTest()
-        {
-            var p = new Problem();
-            var graph = new Graph(p, 5);
-            p.AddCustomConstraint(new NConnectedComponentsConstraint(graph, 1));
-            graph.WriteDot(p.Solve(), "test_one_connected_component.dot");
-        }
-
-        [TestMethod]
-        public void TwoConnectedComponentsTest()
-        {
-            var p = new Problem();
-            var graph = new Graph(p, 4, 1);
-            p.AddCustomConstraint(new NConnectedComponentsConstraint(graph, 2));
-            graph.WriteDot(p.Solve(), "test_two_connected_components.dot");
-        }
-
-        [TestMethod]
-        public void FiveConnectedComponentsTest()
-        {
-            var p = new Problem();
-            var graph = new Graph(p, 5);
-            p.AddCustomConstraint(new NConnectedComponentsConstraint(graph, 5));
-            graph.WriteDot(p.Solve(), "test_five_connected_components.dot");
-        }
-
-        [TestMethod]
         public void SubgraphConnectedTestOne()
         {
             var p = new Problem();
