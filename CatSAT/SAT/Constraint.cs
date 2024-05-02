@@ -226,11 +226,11 @@ namespace CatSAT
         public abstract bool MaxTrueLiterals(int trueLiterals);
 
         /// <summary>
-        /// 
+        /// Updates the list of unsatisfied clauses in the solver when the SAT variable with the specified index is flipped to the specified new value. 
         /// </summary>
-        /// <param name="b"></param>
-        /// <param name="pIndex"></param>
-        /// <param name="newValue"></param>
+        /// <param name="b">The current boolean solver.</param>
+        /// <param name="pIndex">The index of the SAT variable that was flipped.</param>
+        /// <param name="newValue">The new value of the SAT variable that was flipped.</param>
         public abstract void UpdateCustomConstraint(BooleanSolver b, ushort pIndex, bool newValue);
         
         /// <summary>
