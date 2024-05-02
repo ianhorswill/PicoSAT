@@ -62,7 +62,6 @@ namespace CatSAT
         /// </summary>
         public Solution Solution;
 
-        // todo: maybe call this TruthValues instead?
         /// <summary>
         /// States of the different propositions of the Program, indexed by proposition number.
         /// IMPORTANT: this is an alias of solution.Propositions.
@@ -331,7 +330,6 @@ namespace CatSAT
         /// <param name="pIndex">Index of the variable/proposition to flip</param>
         private void Flip(ushort pIndex)
         {
-            // Console.WriteLine($"Flipping {Problem.SATVariables[pIndex].Proposition.Name}"); // todo: remove
             var prop = Problem.SATVariables[pIndex];
             Debug.Assert(!prop.IsPredetermined, "The prop is predetermined, can't flip it.");
             var currentlyTrue = Propositions[pIndex];

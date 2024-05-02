@@ -197,7 +197,6 @@ namespace CatSAT.SAT
         private void RebuildSpanningForest()
         {
             SpanningForest.Clear();
-            // todo: down the road, keep a list/hashset of all the edges that are true, and only iterate over those
             foreach (var edgeProposition in SATVariableToEdge.Values.Where(edgeProposition =>
                          Solver.Propositions[edgeProposition.Index]))
             {
