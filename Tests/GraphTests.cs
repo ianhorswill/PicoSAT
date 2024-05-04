@@ -163,5 +163,108 @@ namespace Tests
             graph.AssertConnected();
             graph.WriteDot(p.Solve(), "test_game.dot");
         }
+
+        [TestMethod]
+        public void FigureOne()
+        {
+            var p = new Problem();
+            var g = new Graph(p, 5, 0);
+            g.AssertConnected();
+            g.WriteDot(p.Solve(), "figure_one.dot");
+        }
+        
+        [TestMethod]
+        public void FigureTwo()
+        {
+            var p = new Problem();
+            var g = new Graph(p, 5);
+            g.AssertConnected();
+            g.WriteDot(p.Solve(), "figure_two.dot");
+        }
+
+        [TestMethod]
+        public void FigureThree()
+        {
+            var p = new Problem();
+            var g = new Graph(p, 40, 0);
+            g.AssertConnected();
+            g.WriteDot(p.Solve(), "figure_three.dot");
+        }
+
+        [TestMethod]
+        public void FigureFour()
+        {
+            var p = new Problem();
+            var g = new Graph(p, 100);
+            g.AssertConnected();
+            g.WriteDot(p.Solve(), "figure_four.dot");
+        }
+
+        [TestMethod]
+        public void FigureFive()
+        {
+            var p = new Problem();
+            var g = new Graph(p, 10, 0);
+            g.AssertNodesConnected(0, 1);
+            g.WriteDot(p.Solve(), "figure_five.dot");
+        }
+
+        [TestMethod]
+        public void FigureSix()
+        {
+            var p = new Problem();
+            var g = new Graph(p, 20);
+            g.AssertNodesConnected(0, 1);
+            g.AssertNodesConnected(2, 3);
+            g.AssertConnected();
+            g.WriteDot(p.Solve(), "figure_six.dot");
+        }
+
+        [TestMethod]
+        public void FigureSeven()
+        {
+            var p = new Problem();
+            var g = new Graph(p, 20, 0);
+            g.Density(0.25f, 0.25f);
+            g.WriteDot(p.Solve(), "figure_seven.dot");
+        }
+
+        [TestMethod]
+        public void FigureEight()
+        {
+            var p = new Problem();
+            var g = new Graph(p, 10, 0);
+            foreach (var v in g.Vertices)
+            {
+                g.VertexDegree(v, 2, 2);
+            }
+            g.AssertConnected();
+            g.WriteDot(p.Solve(), "figure_eight.dot");
+        }
+
+        [TestMethod]
+        public void FigureNine()
+        {
+            var p = new Problem();
+            var g = new Graph(p, 12, 0);
+            var s1 = new Subgraph(g, new[] { 0, 1, 2, 3, 4, 5 });
+            var s2 = new Subgraph(g, new[] { 6, 7, 8, 9, 10, 11 });
+            s1.AssertConnected();
+            s2.AssertConnected();
+            g.WriteDot(p.Solve(), "figure_nine.dot");
+        }
+
+        [TestMethod]
+        public void FigureTen()
+        {
+            var p = new Problem();
+            var g = new Graph(p, 12, 0);
+            var s1 = new Subgraph(g, new[] { 0, 1, 2});
+            var s2 = new Subgraph(g, new[] { 3, 4, 5 });
+            s1.AssertConnected();
+            s2.AssertConnected();
+            g.AssertNBridges(2, 2, s1, s2);
+            g.WriteDot(p.Solve(), "figure_ten.dot");
+        }
     }
 }
