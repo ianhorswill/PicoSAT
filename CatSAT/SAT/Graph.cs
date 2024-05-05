@@ -217,12 +217,9 @@ namespace CatSAT.SAT
             {
                 file.WriteLine("graph G {");
                 file.WriteLine("   layout = fdp;");
-                if (Subgraphs.Count == 0)
-                {
-                    foreach (var vertex in Vertices)
-                        file.WriteLine($"   {vertex};");
-                }
-                else
+                foreach (var vertex in Vertices)
+                    file.WriteLine($"   {vertex};");
+                if (Subgraphs.Count > 0)
                 {
                     var subgraphCounter = 0;
                     foreach (var subgraph in Subgraphs)
