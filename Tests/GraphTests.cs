@@ -224,13 +224,22 @@ namespace Tests
         public void FigureSeven()
         {
             var p = new Problem();
-            var g = new Graph(p, 20, 0);
-            g.Density(0.25f, 0.25f);
+            var g = new Graph(p, 5, 0);
+            g.Density(0.2f, 0.2f);
             g.WriteDot(p.Solve(), "figure_seven.dot");
         }
 
         [TestMethod]
         public void FigureEight()
+        {
+            var p = new Problem();
+            var g = new Graph(p, 5, 0);
+            g.Density(0.9f, 0.9f);
+            g.WriteDot(p.Solve(), "figure_eight.dot");
+        }
+
+        [TestMethod]
+        public void FigureNine()
         {
             var p = new Problem();
             var g = new Graph(p, 10, 0);
@@ -239,18 +248,6 @@ namespace Tests
                 g.VertexDegree(v, 2, 2);
             }
             g.AssertConnected();
-            g.WriteDot(p.Solve(), "figure_eight.dot");
-        }
-
-        [TestMethod]
-        public void FigureNine()
-        {
-            var p = new Problem();
-            var g = new Graph(p, 12, 0);
-            var s1 = new Subgraph(g, new[] { 0, 1, 2, 3, 4, 5 });
-            var s2 = new Subgraph(g, new[] { 6, 7, 8, 9, 10, 11 });
-            s1.AssertConnected();
-            s2.AssertConnected();
             g.WriteDot(p.Solve(), "figure_nine.dot");
         }
 
@@ -259,12 +256,24 @@ namespace Tests
         {
             var p = new Problem();
             var g = new Graph(p, 12, 0);
+            var s1 = new Subgraph(g, new[] { 0, 1, 2, 3, 4, 5 });
+            var s2 = new Subgraph(g, new[] { 6, 7, 8, 9, 10, 11 });
+            s1.AssertConnected();
+            s2.AssertConnected();
+            g.WriteDot(p.Solve(), "figure_ten.dot");
+        }
+
+        [TestMethod]
+        public void FigureEleven()
+        {
+            var p = new Problem();
+            var g = new Graph(p, 12, 0);
             var s1 = new Subgraph(g, new[] { 0, 1, 2});
             var s2 = new Subgraph(g, new[] { 3, 4, 5 });
             s1.AssertConnected();
             s2.AssertConnected();
             g.AssertNBridges(2, 2, s1, s2);
-            g.WriteDot(p.Solve(), "figure_ten.dot");
+            g.WriteDot(p.Solve(), "figure_eleven.dot");
         }
     }
 }
