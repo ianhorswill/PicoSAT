@@ -179,7 +179,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void FloydWarshallStopwatch()
+        public void InverseFloydWarshallStopwatch()
         {
             var graphSizes = new[] { 5, 10 };
             var milliseconds = new double[NumIterations, graphSizes.Length];
@@ -212,7 +212,7 @@ namespace Tests
                 // Now constrain its connectivity
                 foreach (var v1 in vertices)
                 foreach (var v2 in vertices)
-                    if (v1 == v2 || (v1 != "e" && v2 != "e"))
+                    if (v1 == v2 || (v1 != vertices.Last() && v2 != vertices.Last()))
                         p.Assert(Connected(v1, v2));
                     else
                         p.Assert(Not(Connected(v1, v2)));
@@ -227,7 +227,7 @@ namespace Tests
                     stopwatch.Stop();
                     foreach (var v1 in vertices)
                     foreach (var v2 in vertices)
-                        Assert.IsTrue(s[Connected(v1, v2)] == (v1 == v2) || (v1 != "e" && v2 != "e"));
+                        Assert.IsTrue(s[Connected(v1, v2)] == (v1 == v2) || (v1 != vertices.Last() && v2 != vertices.Last()));
                     milliseconds[col, row] = stopwatch.Elapsed.TotalMilliseconds;
                 }
             }
