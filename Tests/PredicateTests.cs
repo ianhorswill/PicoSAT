@@ -292,32 +292,32 @@ namespace Tests
         }
 
         [TestMethod]
-        public void InverseFloyWarshall5Test()
+        public void InverseFloydWarshall5Test()
         {
             // Make a random 5-node undirected graph with designated connected components.
             // Computes transitive closure of using Floyd-Warshall
             InverseFWTest("IFW5", new[] { "a", "b", "c", "d", "e" });
         }
 
-        //[TestMethod]
-        //public void InverseFloyWarshall10Test()
-        //{
-        //    // Make a random 5-node undirected graph with designated connected components.
-        //    // Computes transitive closure of using Floyd-Warshall
-        //    InverseFWTest("IFW10", new[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" });
-        //}
+        [TestMethod]
+        public void InverseFloydWarshall10Test()
+        {
+            // Make a random 5-node undirected graph with designated connected components.
+            // Computes transitive closure of using Floyd-Warshall
+            InverseFWTest("IFW10", new[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" });
+        }
 
-        //[TestMethod]
-        //public void InverseFloyWarshall20Test()
-        //{
-        //    // Make a random 5-node undirected graph with designated connected components.
-        //    // Computes transitive closure of using Floyd-Warshall
-        //    InverseFWTest("IFW20", new[]
-        //    {
-        //        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
-        //        "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"
-        //    });
-        //}
+        [TestMethod]
+        public void InverseFloydWarshall20Test()
+        {
+            // Make a random 5-node undirected graph with designated connected components.
+            // Computes transitive closure of using Floyd-Warshall
+            InverseFWTest("IFW20", new[]
+            {
+                "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+                "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"
+            });
+        }
 
         private static void InverseFWTest(string name, string[] vertices)
         {

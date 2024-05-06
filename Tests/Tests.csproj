@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FluentTests.cs" />
+    <Compile Include="GraphStopwatchTests.cs" />
     <Compile Include="GraphTests.cs" />
     <Compile Include="LanguageTests.cs" />
     <Compile Include="MenuVariableTest.cs" />
