@@ -179,6 +179,32 @@ namespace Tests
         }
 
         [TestMethod]
+        public void ConnectedGraphOfLowDensity()
+        {
+            for (var row = 0; row < GraphSizes.Length; row++)
+            {
+                var size = GraphSizes[row];
+
+                var p = new Problem();
+                var graph = new Graph(p, size);
+                var (minDensity, maxDensity) = CalculateDensity(size, 1, 2);
+                graph.Density(minDensity, maxDensity);
+                graph.AssertConnected();
+
+                for (var col = 0; col < NumIterations; col++)
+                {
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    p.Solve();
+                    stopwatch.Stop();
+                    _stopwatchMilliseconds[col, row] = stopwatch.Elapsed.TotalMilliseconds;
+                }
+            }
+
+            WriteResultsToFile("GraphConnectedLowDensity", ".txt", _stopwatchMilliseconds, GraphSizes);
+        }
+
+        [TestMethod]
         public void InverseFloydWarshallStopwatch()
         {
             var graphSizes = new[] { 5, 10 };
@@ -314,5 +340,13 @@ namespace Tests
         private double GetMinimum(IReadOnlyCollection<double> milliseconds) => milliseconds.Min();
 
         private double GetMaximum(IReadOnlyCollection<double> milliseconds) => milliseconds.Max();
+
+        private (float, float) CalculateDensity(int numVertices, int minDegree, int maxDegree)
+        {
+            var numEdges = numVertices * (numVertices - 1) / 2;
+            var minEdges = numVertices * minDegree / 2;
+            var maxEdges = numVertices * maxDegree / 2;
+            return ((float) minEdges / numEdges, (float) maxEdges / numEdges);
+        }
     }
 }

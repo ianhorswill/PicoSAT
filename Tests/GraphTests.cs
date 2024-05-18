@@ -275,5 +275,42 @@ namespace Tests
             g.AssertNBridges(2, 2, s1, s2);
             g.WriteDot(p.Solve(), "figure_eleven.dot");
         }
+
+        private (float, float) CalculateDensity(int numVertices, int minVertexDegree, int maxVertexDegree)
+        {
+            var numEdges = numVertices * (numVertices - 1) / 2;
+            var minEdges = numVertices * minVertexDegree / 2;
+            var maxEdges = numVertices * maxVertexDegree / 2;
+            return ((float) minEdges / numEdges, (float) maxEdges / numEdges);
+        }
+        
+        [TestMethod]
+        public void FigureTwelve()
+        {
+            var p = new Problem();
+            var g = new Graph(p, 20);
+            var densityBounds = CalculateDensity(20, 1, 2);
+            g.Density(densityBounds.Item1, densityBounds.Item2);
+            g.AssertConnected();
+            g.WriteDot(p.Solve(), "figure_twelve.dot");
+        }
+
+        [TestMethod]
+        public void FigureThirteen()
+        {
+            var p = new Problem();
+            var g = new Graph(p, 15);
+            var s1 = new Subgraph(g, new[] { 1, 2, 3, 4, 5 });
+            var s2 = new Subgraph(g, new[] { 10, 13 });
+            var s3 = new Subgraph(g, new[] { 12 });
+            s1.AssertConnected();
+            s2.AssertConnected();
+            g.Density(0.2f, 0.3f);
+            g.AssertNodesConnected(0, 10);
+            g.AssertNodesConnected(9, 14);
+            g.VertexDegree(12, 4, 5);
+            g.AssertConnected();
+            g.WriteDot(p.Solve(), "figure_thirteen.dot");
+        }
     }
 }
