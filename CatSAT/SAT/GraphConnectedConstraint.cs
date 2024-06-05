@@ -81,8 +81,8 @@ namespace CatSAT.SAT
 
             var dCount = (uint)disjuncts.Count;
             var index = Random.InRange(dCount);
-            uint prime;
-            do prime = Random.Prime(); while (prime <= dCount);
+            var prime = Random.Prime();
+            // do prime = Random.Prime(); while (prime <= dCount);
             for (var i = 0; i < dCount; i++)
             {
                 var literal = disjuncts[(int)index];
@@ -92,7 +92,7 @@ namespace CatSAT.SAT
                 var edge = Graph.SATVariableToEdge[selectedVar];
                 if (Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex)) continue;
                 var delta = b.UnsatisfiedClauseDelta(selectedVar);
-                if (delta <= 0)
+                if (delta < 0)
                 {
                     best = selectedVar;
                     break;

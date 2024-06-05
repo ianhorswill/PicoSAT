@@ -100,7 +100,7 @@ namespace CatSAT.SAT
         {
             EdgeProposition edgeProp = Graph.SATVariableToEdge[pIndex];
             SpanningForest.PrintEdges(); // todo: remove
-            Console.WriteLine($"{(adding ? "adding" : "removing")} {edgeProp}");
+            // Console.WriteLine($"{(adding ? "adding" : "removing")} {edgeProp}");
             if (adding)
             {
                 Graph.ConnectInSpanningForest(edgeProp.SourceVertex, edgeProp.DestinationVertex);

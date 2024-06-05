@@ -77,7 +77,7 @@ namespace CatSAT.SAT
         {
             var edgeAdded = SpanningForest.Union(n, m);
             if (connectInOriginalGraph) OriginalGraph.ConnectInSpanningForest(n, m);
-            if (edgeAdded) Console.WriteLine($"Connected {n} and {m} in Subgraph.");
+            // if (edgeAdded) Console.WriteLine($"Connected {n} and {m} in Subgraph.");
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace CatSAT.SAT
             SpanningForest.Clear();
             _spanningForestBuilt = false;
             OriginalGraph.Disconnect(n, m);
-            Console.WriteLine($"Disconnected {n} and {m} in Subgraph.");
+            // Console.WriteLine($"Disconnected {n} and {m} in Subgraph.");
         }
 
         /// <summary>

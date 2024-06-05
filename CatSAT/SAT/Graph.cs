@@ -166,7 +166,7 @@ namespace CatSAT.SAT
         public void ConnectInSpanningForest(int n, int m)
         {
             var edgeAdded = SpanningForest.Union(n, m);
-            if (edgeAdded) Console.WriteLine($"Connected {n} and {m} in Graph.");
+            // if (edgeAdded) Console.WriteLine($"Connected {n} and {m} in Graph.");
         }
 
         /// <summary>
@@ -179,7 +179,7 @@ namespace CatSAT.SAT
             if (!SpanningForest.Contains(Edges(n, m).Index)) return;
             SpanningForest.Clear();
             _spanningForestBuilt = false;
-            Console.WriteLine($"Disconnected {n} and {m} in Graph.");
+            // Console.WriteLine($"Disconnected {n} and {m} in Graph.");
             RebuildSpanningForest();
         }
 

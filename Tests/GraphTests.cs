@@ -23,6 +23,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 
+using System;
 using CatSAT;
 using CatSAT.SAT;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -311,6 +312,129 @@ namespace Tests
             g.VertexDegree(12, 4, 5);
             g.AssertConnected();
             g.WriteDot(p.Solve(), "figure_thirteen.dot");
+        }
+
+        [TestMethod]
+        public void SlideFigureOne()
+        {
+            Problem p = new Problem();
+            Graph g = new Graph(p, 15);
+            g.AssertConnected();
+            g.WriteDot(p.Solve(), "slide_figure_one.dot");
+        }
+
+        [TestMethod]
+        public void SlideFigureTwo()
+        {
+            Problem p = new Problem();
+            Graph g = new Graph(p, 10);
+            Subgraph s1 = new Subgraph(g, new[] { 0, 1, 2, 3, 4 });
+            Subgraph s2 = new Subgraph(g, new[] { 7, 8, 9 });
+            s1.AssertConnected();
+            s2.AssertConnected();
+            g.WriteDot(p.Solve(), "slide_figure_two.dot");
+        }
+
+        [TestMethod]
+        public void SlideFigureThree()
+        {
+            Problem p = new Problem();
+            Graph g = new Graph(p, 10);
+            g.AssertNodesConnected(0, 5);
+            g.AssertNodesConnected(1, 6);
+            g.WriteDot(p.Solve(), "slide_figure_three.dot");
+        }
+
+        [TestMethod]
+        public void SlideFigureFour()
+        {
+            Problem p = new Problem();
+            Graph g = new Graph(p, 20);
+            var densityBounds = CalculateDensity(20, 1, 2);
+            Console.WriteLine($"lower: {densityBounds.Item1}, upper: {densityBounds.Item2}");
+            g.Density(densityBounds.Item1, densityBounds.Item2);
+            g.AssertConnected();
+            g.WriteDot(p.Solve(), "slide_figure_four.dot");
+        }
+
+        [TestMethod]
+        public void SlideFigureFive()
+        {
+            Problem p = new Problem();
+            Graph g = new Graph(p, 10);
+            foreach (int v in g.Vertices)
+            {
+                g.VertexDegree(v, 2, 2);
+            }
+            g.AssertConnected();
+            g.WriteDot(p.Solve(), "slide_figure_five.dot");
+        }
+
+        [TestMethod]
+        public void SlideFigureSix()
+        {
+            Problem p = new Problem();
+            Graph g = new Graph(p, 12, 0);
+            Subgraph s1 = new Subgraph(g, new[] { 0, 1, 2 });
+            Subgraph s2 = new Subgraph(g, new[] { 3, 4, 5 });
+            s1.AssertConnected();
+            s2.AssertConnected();
+            g.AssertNBridges(2, 2, s1, s2);
+            g.WriteDot(p.Solve(), "slide_figure_six.dot");
+        }
+
+        [TestMethod]
+        public void SlideFigureSeven()
+        {
+            Problem p = new Problem();
+            Graph g = new Graph(p, 15);
+            Subgraph s1 = new Subgraph(g, new[] { 1, 2, 3, 4, 5 });
+            Subgraph s2 = new Subgraph(g, new[] { 10, 13 });
+            Subgraph s3 = new Subgraph(g, new[] { 12 });
+            s1.AssertConnected();
+            s2.AssertConnected();
+            g.Density(0.2f, 0.3f);
+            g.AssertNodesConnected(0, 10);
+            g.AssertNodesConnected(9, 14);
+            g.VertexDegree(12, 4, 5);
+            g.AssertConnected();
+            g.WriteDot(p.Solve(), "slide_figure_seven.dot");    
+        }
+
+        [TestMethod]
+        public void BinaryTree()
+        {
+            const int n = 21;
+            var p = new Problem();
+            var g = new Graph(p, n);
+            for (var i = 0; i < g.Vertices.Length; i++)
+            {
+                if (i < (n + 1) / 2)
+                {
+                    g.VertexDegree(i, 1, 1);
+                }
+                else if (i == g.Vertices.Length - 1)
+                {
+                    g.VertexDegree(i, 2, 2);
+                }
+                else
+                {
+                    g.VertexDegree(i, 3, 3);
+                }
+            }
+            g.AssertConnected(); // not necessary by definition
+            g.WriteDot(p.Solve(), "binary_tree.dot");
+        }
+
+        [TestMethod]
+        public void BigGraph()
+        {
+            CatSAT.Random.SetSeed();
+            var p = new Problem();
+            var g = new Graph(p, 250, 0.01f);
+            g.AssertConnected();
+            var s = p.Solve();
+            g.WriteDot(s, "big_graph.dot");
         }
     }
 }

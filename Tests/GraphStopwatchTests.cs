@@ -12,8 +12,8 @@ namespace Tests
     [TestClass]
     public class GraphStopwatchTests
     {
-        private static readonly int[] GraphSizes = { 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
-        private const int NumIterations = 100;
+        private static readonly int[] GraphSizes = { 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 250 };
+        private const int NumIterations = 3; //100;
 
         private double[,] _stopwatchMilliseconds = new double[NumIterations, GraphSizes.Length];
 
@@ -21,7 +21,7 @@ namespace Tests
         private static readonly string[] TenVertices = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
         
         private static readonly string[][] Vertices = { FiveVertices, TenVertices };
-
+        
         [TestMethod]
         public void GraphConnectedStopwatch()
         {
@@ -30,7 +30,8 @@ namespace Tests
                 var size = GraphSizes[row];
 
                 var p = new Problem();
-                var graph = new Graph(p, size);
+                // p.Timeout = 1000;
+                var graph = new Graph(p, size, 0);
                 graph.AssertConnected();
 
                 for (var col = 0; col < NumIterations; col++)
