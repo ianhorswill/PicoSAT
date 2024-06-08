@@ -13,15 +13,41 @@ namespace Tests
     public class GraphStopwatchTests
     {
         private static readonly int[] GraphSizes = { 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 250 };
-        private const int NumIterations = 3; //100;
+        private const int NumIterations = 100;
 
         private double[,] _stopwatchMilliseconds = new double[NumIterations, GraphSizes.Length];
 
         private static readonly string[] FiveVertices = { "A", "B", "C", "D", "E" };
         private static readonly string[] TenVertices = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
-        
+
         private static readonly string[][] Vertices = { FiveVertices, TenVertices };
-        
+
+        private const string TxtFilesFolder = "./StopwatchFiles/";
+
+        [TestMethod]
+        public void GraphConnectedStopwatchNoInitialEdges()
+        {
+            for (var row = 0; row < GraphSizes.Length; row++)
+            {
+                var size = GraphSizes[row];
+
+                var p = new Problem();
+                var graph = new Graph(p, size, 0);
+                graph.AssertConnected();
+
+                for (var col = 0; col < NumIterations; col++)
+                {
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    p.Solve();
+                    stopwatch.Stop();
+                    _stopwatchMilliseconds[col, row] = stopwatch.Elapsed.TotalMilliseconds;
+                }
+            }
+
+            WriteResultsToFile("GraphConnectedNoInitialEdges", ".txt", _stopwatchMilliseconds, GraphSizes);
+        }
+
         [TestMethod]
         public void GraphConnectedStopwatch()
         {
@@ -30,8 +56,7 @@ namespace Tests
                 var size = GraphSizes[row];
 
                 var p = new Problem();
-                // p.Timeout = 1000;
-                var graph = new Graph(p, size, 0);
+                var graph = new Graph(p, size);
                 graph.AssertConnected();
 
                 for (var col = 0; col < NumIterations; col++)
@@ -210,7 +235,7 @@ namespace Tests
         {
             var graphSizes = new[] { 5, 10 };
             var milliseconds = new double[NumIterations, graphSizes.Length];
-            
+
             for (var row = 0; row < graphSizes.Length; row++)
             {
                 var size = graphSizes[row];
@@ -233,7 +258,7 @@ namespace Tests
                             D(v1, v2, k) <= (D(v1, vk, k - 1) & D(vk, v2, k - 1))
                         );
                 }
-                
+
                 Proposition Connected(string v1, string v2) => D(v1, v2, vertices.Length - 1);
 
                 // Now constrain its connectivity
@@ -254,23 +279,60 @@ namespace Tests
                     stopwatch.Stop();
                     foreach (var v1 in vertices)
                     foreach (var v2 in vertices)
-                        Assert.IsTrue(s[Connected(v1, v2)] == (v1 == v2) || (v1 != vertices.Last() && v2 != vertices.Last()));
+                        Assert.IsTrue(s[Connected(v1, v2)] == (v1 == v2) ||
+                                      (v1 != vertices.Last() && v2 != vertices.Last()));
                     milliseconds[col, row] = stopwatch.Elapsed.TotalMilliseconds;
                 }
             }
-            
+
             WriteResultsToFile("FloydWarshall", ".txt", milliseconds, graphSizes);
+        }
+
+        [TestMethod]
+        public void MultipleConstraints()
+        {
+            for (var row = 0; row < GraphSizes.Length; row++)
+            {
+                var size = GraphSizes[row];
+
+                var p = new Problem();
+                var graph = new Graph(p, size);
+                var subgraph1Vertices = Enumerable.Range(1, size / 3).ToArray();
+                var subgraph2Vertices = Enumerable.Range(size / 3 + 1, size == 5 ? 2 : size / 5).ToArray();
+                var subgraph3Vertices = Enumerable.Range(size - 1, 1).ToArray();
+                var subgraph1 = new Subgraph(graph, subgraph1Vertices);
+                var subgraph2 = new Subgraph(graph, subgraph2Vertices);
+                var subgraph3 = new Subgraph(graph, subgraph3Vertices);
+                subgraph1.AssertConnected();
+                subgraph2.AssertConnected();
+                if (size > 5) graph.Density(0.2f, 0.3f);
+                graph.AssertNodesConnected(0, subgraph2Vertices[0]);
+                graph.VertexDegree(size - 1, 4, 5);
+                graph.AssertConnected();
+
+                for (var col = 0; col < NumIterations; col++)
+                {
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    p.Solve();
+                    stopwatch.Stop();
+                    _stopwatchMilliseconds[col, row] = stopwatch.Elapsed.TotalMilliseconds;
+                }
+            }
+
+            WriteResultsToFile("MultipleConstraints", ".txt", _stopwatchMilliseconds, GraphSizes);
         }
 
         private void WriteResultsToFile(string filename, string extension, double[,] resultsArray, int[] graphSizes)
         {
-            using (var file = new System.IO.StreamWriter($"{filename}Stats{extension}"))
+            using (var file = new System.IO.StreamWriter($"{TxtFilesFolder}{filename}Stats{extension}"))
             {
                 file.WriteLine($"{filename} Stats");
                 for (var row = 0; row < graphSizes.Length; row++)
                 {
                     file.WriteLine($"Size: {graphSizes[row]}");
-                    var millisecondsRemovedOutliers = RemoveOutliers(GetRow(resultsArray, row));
+                    var millisecondsRemovedOutliers = RemoveOutliers(GetRow(resultsArray, row)).ToList();
+                    if (row == 0) millisecondsRemovedOutliers.RemoveAt(0);
                     file.WriteLine($"     Average: {GetAverage(millisecondsRemovedOutliers)}");
                     file.WriteLine($"     Median: {GetMedian(millisecondsRemovedOutliers)}");
                     file.WriteLine(
@@ -347,7 +409,7 @@ namespace Tests
             var numEdges = numVertices * (numVertices - 1) / 2;
             var minEdges = numVertices * minDegree / 2;
             var maxEdges = numVertices * maxDegree / 2;
-            return ((float) minEdges / numEdges, (float) maxEdges / numEdges);
+            return ((float)minEdges / numEdges, (float)maxEdges / numEdges);
         }
     }
 }

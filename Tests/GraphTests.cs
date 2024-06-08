@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using CatSAT;
 using CatSAT.SAT;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
